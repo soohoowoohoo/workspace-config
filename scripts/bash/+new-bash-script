@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+file=$1
+print "#!/usr/bin/env bash\n\n" > ${file}
+lvim ${file}

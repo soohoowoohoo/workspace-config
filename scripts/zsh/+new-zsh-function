@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+file=$1
+filepath=~/workspace/.zshfunctions/+${file}
+print "#!/usr/bin/env zsh\n\n" > ${filepath}
+code ${filepath}

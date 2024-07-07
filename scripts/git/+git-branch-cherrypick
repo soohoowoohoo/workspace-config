@@ -1,0 +1,20 @@
+#!/usr/bin/env zsh
+branch=${1}
+if [[ -z "${branch}" ]]; then
+    echo "Must specify a branch name"
+    return 1
+fi
+
+git show-ref --verify --quiet "refs/heads/${branch}" 2> /dev/null
+branch_status=$?
+if [[ branch_status -eq 1 ]] ; then
+    echo "Branch '${branch}' does not exist"
+    return 1
+elif [[ branch_status -ne 0 ]]; then
+    echo "Could not cherry-pick branch '${branch}'"
+    return 1
+fi
+
+git branch --move ${branch} ${branch}-old
+git checkout -b ${branch} --track origin/${branch}
+git cherry-pick $(git rev-parse ${branch}-old)

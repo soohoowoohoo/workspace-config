@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+branches=$(git ls-remote --heads upstream | awk '{print $2}' | cut -d '/' -f 3 | fzf -m)
+
+padding() {
+    count=${1}
+    for i in $(seq $count); do
+        echo -n " "
+    done
+}
+
+for branch in ${branches}; do
+    message="Inspecting branch '${branch}'"
+    message_length=$(printf "${message}" | wc -c | tr -d ' ')
+    message_padding=$(( ( 54 - ${message_length} ) / 2 ))
+
+    echo
+    echo "#######################################################"
+    echo "#                                                     #"
+    printf "#%s%s%s#\n" "$(padding $message_padding)" "${message}" "$(padding $message_padding)"
+    echo "#                                                     #"
+    echo "#######################################################"
+
+    echo
+    git log -1 upstream/${branch}
+
+    echo
+    printf "Show HEAD diff for branch '${branch}'? (y/n): "
+    read -r show_diff
+    if [[ "$show_diff" == "y" ]]; then
+        git show upstream/${branch}
+    fi
+
+    echo
+    printf "Delete branch '${branch}'? (y/n): "
+    read -r delete_branch
+    if [[ "$delete_branch" == "y" ]]; then
+        git push --delete upstream ${branch}
+    fi
+done

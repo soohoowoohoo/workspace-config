@@ -1,0 +1,19 @@
+#!/usr/bin/env zsh
+branch=${1}
+if [[ -z "${branch}" ]]; then
+    echo "Must specify a branch name"
+    return 1
+fi
+
+git show-ref --verify --quiet "refs/heads/${branch}" 2> /dev/null
+branch_status=$?
+if [[ branch_status -eq 0 ]]; then
+    echo "Branch '${branch}' already exists"
+    return 1
+elif [[ branch_status -ne 1 ]]; then
+    echo "Could not create new branch '${branch}'"
+    return 1
+fi
+
+git checkout -b ${branch}
+git push --set-upstream origin ${branch}

@@ -1,0 +1,4 @@
+session_name: default-session
+windows:
+  - window_name: navigator
+

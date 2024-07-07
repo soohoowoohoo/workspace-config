@@ -1,0 +1,7 @@
+session_name: code-session
+windows:
+  - window_name: editor
+    layout: even-vertical
+    panes:
+      - pane_name: pane1
+      - pane_name: pane2

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+# branches=$(git branch | grep -v '*' | fzf -m --layout reverse --tmux center,65%,35%)
+branches=$(git branch | grep -v '*' | fzf -m)
+
+# echo "Branches to cleanup:"
+# for branch in ${branches}; do
+#      printf "%-40s\n" "    ${branch}"
+# done
+
+
+padding() {
+    count=${1}
+    for i in $(seq $count); do
+        echo -n " "
+    done
+}
+
+for branch in ${branches}; do
+    message="Inspecting branch '${branch}'"
+    message_length=$(printf "${message}" | wc -c | tr -d ' ')
+    message_padding=$(( ( 54 - ${message_length} ) / 2 ))
+
+    # total_padding=$(( ( 54 - ${message_length} ) ))
+    # printf "message_length: ${message_length}\n"
+    # printf "total_padding: ${total_padding}\n"
+    # printf "message_padding: ${message_padding}\n"
+
+    echo
+    echo "#######################################################"
+    echo "#                                                     #"
+    printf "#%s%s%s#\n" "$(padding $message_padding)" "${message}" "$(padding $message_padding)"
+    echo "#                                                     #"
+    echo "#######################################################"
+
+    echo
+    git log -1 ${branch}
+
+    echo
+    printf "Show HEAD diff for branch '${branch}'? (y/n): "
+    read -r show_diff
+    if [[ "$show_diff" == "y" ]]; then
+        git show ${branch}
+    fi
+
+    echo
+    printf "Delete branch '${branch}'? (y/n): "
+    read -r delete_branch
+    if [[ "$delete_branch" == "y" ]]; then
+        +git-branch-cleanup-new ${branch}
+    fi
+done
