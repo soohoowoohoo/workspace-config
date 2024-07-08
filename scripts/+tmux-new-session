@@ -6,6 +6,5 @@ if [[ -z ${session_name} ]]; then
     echo "A session name must be provided."
     exit 1
 else
-    tmuxp load -s ${session_name} ~/workspace/.tmux/code-session.yaml
+    tmuxp load -s ${session_name} ~/workspace/.tmux/default-session.yaml
 fi
-
