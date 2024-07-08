@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+remote=origin
+
+upstream_exists=$(git remote | grep upstream | wc -l | awk '{print $1}')
+if [[ ${upstream_exists} -eq 1 ]]; then
+    remote=upstream
+fi
+
+git pull --rebase ${remote} master
