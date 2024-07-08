@@ -1,11 +1,11 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
-playground_dir=${SOME_DIR}
+playground_dir=~/workspace/go_playground
 playground_name=$1
 
 if [[ -z "${playground_name}" ]]; then
     echo "Must specify a playground name"
-    return 1
+    exit 1
 fi
 
 new_playground=${playground_dir}/${playground_name}
@@ -14,18 +14,22 @@ mkdir_status=$?
 
 if [[ mkdir_status -ne 0 ]]; then
     echo "Failed to create playground '${playground_name}'"
-    return 1
+    exit 1
 fi
 
-printf "package main
+printf 'package main
 
 import (
-	\"fmt\"
+	"fmt"
 )
 
 func main() {
-	fmt.Println(\"Hello, playground\")
+	fmt.Println("Hello, 世界")
 }
-" > ${new_playground}/main.go
+' > ${new_playground}/main.go
 
-code ${new_playground}
+
+current_dir=$(pwd)
+cd ${new_playground}
+lvim
+cd ${current_dir}
