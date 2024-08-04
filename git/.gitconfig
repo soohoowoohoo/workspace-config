@@ -1,0 +1,8 @@
+[core]
+    editor = lvim
+[pull]
+	rebase = false
+[alias]
+    graph = log --pretty=format:"%C(yellow)%h%Cgreen%d\\ %Creset%s%C(magenta)\\ [%an]" --graph
+    ls = log --pretty=format:"%C(yellow)%h%Cgreen%d\\ %Creset%s%C(magenta)\\ [%an]" --max-count 30
+    lsl = log --pretty=format:"%C(yellow)%h%Cgreen%d\\ %Creset%s%C(magenta)\\ [%an]"
