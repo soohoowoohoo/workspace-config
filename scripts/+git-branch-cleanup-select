@@ -47,6 +47,6 @@ for branch in ${branches}; do
     printf "Delete branch '${branch}'? (y/n): "
     read -r delete_branch
     if [[ "$delete_branch" == "y" ]]; then
-        +git-branch-cleanup-new ${branch}
+        +git-branch-cleanup ${branch}
     fi
 done
