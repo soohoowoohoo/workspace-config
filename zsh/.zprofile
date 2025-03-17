@@ -3,18 +3,19 @@ for file in ~/workspace/.zshfunctions/*; do
 	autoload $file
 done
 
-# path
+# personal aliases
 alias w='cd ~/workspace'
 alias r='cd ~/workspace/repositories'
 alias s='cd ~/workspace/scripts'
 alias show_hidden='ls -ld .?*'
+alias ll='ls -lah'
+alias re-source='source ~/.zshrc && source ~/.zprofile'
 
 # git
-# alias git="hub"
 alias b='git branch'
+alias bc='+git-branch-create'
 alias bcp='+git-branch-cherrypick'
 alias bcu='+git-branch-cleanup'
-alias bc='+git-branch-create'
 alias gs='git status'
 alias gc='git checkout'
 alias gcm='git checkout master'
