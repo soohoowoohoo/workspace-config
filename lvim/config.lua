@@ -76,5 +76,8 @@ lvim.plugins = {
             { "<C-l>",  "<cmd><C-U>TmuxNavigateRight<CR>" },
             { "<C-\\>", "<cmd><C-U>TmuxNavigatePrevious<CR>" },
         },
-    }
+    },
+    {
+        "fatih/vim-go",
+    },
 }
