@@ -7,4 +7,6 @@ if [[ ${upstream_exists} -eq 1 ]]; then
     remote=upstream
 fi
 
-git pull --rebase ${remote} master
+default_branch=$(git remote show ${remote} | grep HEAD | cut -d ':' -f 2 | tr -d '[:space:]')
+
+git pull --rebase ${remote} ${default_branch}
