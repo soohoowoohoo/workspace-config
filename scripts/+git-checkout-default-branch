@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+if [[ `git branch --list master | wc -l` -eq 1 ]]; then
+    default_branch='master'
+elif [[ `git branch --list main | wc -l` -eq 1 ]]; then
+    default_branch='main'
+else
+    echo "Unknown default branch"
+    exit 1
+fi
+
+git checkout ${default_branch}
