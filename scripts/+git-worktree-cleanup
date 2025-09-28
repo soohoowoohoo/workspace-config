@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+worktree=${1}
+if [[ -z "${worktree}" ]]; then
+    echo "Must specify a worktree name"
+    return 1
+fi
+
+git worktree remove ${worktree} \
+   && +git-branch-cleanup ${worktree}

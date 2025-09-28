@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+worktree=${1}
+if [[ -z "${worktree}" ]]; then
+    echo "Must specify a worktree name"
+    return 1
+fi
+
+git worktree add "${worktree}" \
+    && cd "${worktree}" \
+    && git push --set-upstream origin "${worktree}"
