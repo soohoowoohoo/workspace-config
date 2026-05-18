@@ -8,6 +8,13 @@ vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 
+-- word wrap https://stackoverflow.com/a/50415982
+vim.opt.textwidth = 0
+vim.opt.wrapmargin = 0
+vim.opt.wrap = true
+vim.opt.linebreak = true -- (optional - breaks by word rather than character)
+
+
 -- custom page movement keymaps from ThePrimeagean
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
@@ -81,5 +88,17 @@ lvim.plugins = {
     },
     {
         "fatih/vim-go",
+    },
+    {
+        "f-person/git-blame.nvim",
+        event = "BufRead",
+        config = function()
+            vim.cmd "highlight default link gitblame SpecialComment"
+            require("gitblame").setup {
+                enabled = true,
+                message_template = '<author>, <date> • <summary>',
+                date_format = '%r',
+            }
+        end,
     },
 }
