@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: caffeinate-time <duration>" >&2
+  echo "  duration: Go-style duration string, e.g. 30s, 5m, 2h" >&2
+  exit 1
+fi
+
+input="$1"
+
+parse_duration() {
+  local raw="$1"
+  local total=0
+  local remaining="$raw"
+
+  while [[ -n "$remaining" ]]; do
+    if [[ "$remaining" =~ ^([0-9]+)(h|m|s)(.*)$ ]]; then
+      local value="${BASH_REMATCH[1]}"
+      local unit="${BASH_REMATCH[2]}"
+      remaining="${BASH_REMATCH[3]}"
+      case "$unit" in
+        h) total=$(( total + value * 3600 )) ;;
+        m) total=$(( total + value * 60 )) ;;
+        s) total=$(( total + value )) ;;
+      esac
+    else
+      echo "error: invalid duration '${raw}'" >&2
+      exit 1
+    fi
+  done
+
+  if [[ $total -le 0 ]]; then
+    echo "error: duration must be greater than zero" >&2
+    exit 1
+  fi
+
+  echo "$total"
+}
+
+seconds=$(parse_duration "$input")
+end_time=$(date -v "+${seconds}S" "+%H:%M:%S" 2>/dev/null || date -d "+${seconds} seconds" "+%H:%M:%S")
+
+echo "Caffeinating for ${input} (until ${end_time})..."
+exec /usr/bin/caffeinate -t "$seconds"
