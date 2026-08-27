@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Workaround for Go bug #59068: 'go build' fails with Exit 128 in a bare Git repository layout.
+# Forcing explicit Git environment variables bypasses Go's broken VCS auto-discovery logic
+# and allows binary commit-stamping without needing -buildvcs=false.
+export GIT_DIR=$(git rev-parse --git-dir)
+export GIT_WORK_TREE=$(git rev-parse --show-toplevel)
