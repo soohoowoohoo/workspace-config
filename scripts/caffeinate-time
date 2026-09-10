@@ -2,13 +2,38 @@
 
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-  echo "Usage: caffeinate-time <duration>" >&2
+usage() {
+  echo "Usage: caffeinate-time <time>" >&2
+  echo "       caffeinate-time [-d|--duration] <duration>" >&2
+  echo "  time: 24-hour or AM/PM time, e.g. 13:15, 1:15pm" >&2
   echo "  duration: Go-style duration string, e.g. 30s, 5m, 2h" >&2
+}
+
+if [[ $# -eq 0 || $# -gt 2 ]]; then
+  usage
   exit 1
 fi
 
-input="$1"
+mode="time"
+input=""
+if [[ "$1" == "-d" || "$1" == "--duration" ]]; then
+  if [[ $# -ne 2 ]]; then
+    usage
+    exit 1
+  fi
+  mode="duration"
+  input="$2"
+elif [[ "$1" == -* ]]; then
+  echo "error: unknown option '$1'" >&2
+  usage
+  exit 1
+else
+  if [[ $# -ne 1 ]]; then
+    usage
+    exit 1
+  fi
+  input="$1"
+fi
 
 parse_duration() {
   local raw="$1"
@@ -39,8 +64,78 @@ parse_duration() {
   echo "$total"
 }
 
-seconds=$(parse_duration "$input")
-end_time=$(date -v "+${seconds}S" "+%H:%M:%S" 2>/dev/null || date -d "+${seconds} seconds" "+%H:%M:%S")
+parse_time() {
+  local raw="$1"
+  local hour minute meridiem
 
-echo "Caffeinating for ${input} (until ${end_time})..."
+  if [[ "$raw" =~ ^([0-9]{1,2})(:([0-9]{2}))?([aApP][mM])?$ ]]; then
+    hour="${BASH_REMATCH[1]}"
+    minute="${BASH_REMATCH[3]:-0}"
+    meridiem="${BASH_REMATCH[4]}"
+  else
+    echo "error: invalid time '${raw}'" >&2
+    exit 1
+  fi
+
+  if [[ -n "$meridiem" ]]; then
+    if (( hour < 1 || hour > 12 )); then
+      echo "error: invalid time '${raw}'" >&2
+      exit 1
+    fi
+    if [[ "${meridiem,,}" == "am" ]]; then
+      (( hour == 12 )) && hour=0
+    else
+      (( hour < 12 )) && hour=$(( hour + 12 ))
+    fi
+  elif (( hour > 23 )); then
+    echo "error: invalid time '${raw}'" >&2
+    exit 1
+  fi
+
+  if (( minute > 59 )); then
+    echo "error: invalid time '${raw}'" >&2
+    exit 1
+  fi
+
+  printf '%d:%02d\n' "$hour" "$minute"
+}
+
+format_duration() {
+  local total_seconds="$1"
+  local formatted=""
+  local hours=$(( total_seconds / 3600 ))
+  local minutes=$(( (total_seconds % 3600) / 60 ))
+
+  (( hours > 0 )) && formatted+="${hours}h"
+  if (( hours > 0 || minutes > 0 )); then
+    formatted+="${minutes}m"
+  else
+    formatted="0m"
+  fi
+  echo "$formatted"
+}
+
+if [[ "$mode" == "duration" ]]; then
+  seconds=$(parse_duration "$input")
+  end_time=$(date -v "+${seconds}S" "+%H:%M:%S" 2>/dev/null || date -d "+${seconds} seconds" "+%H:%M:%S")
+  echo "Caffeinating for ${input} (until ${end_time})..."
+else
+  target_time=$(parse_time "$input")
+  today=$(date "+%Y-%m-%d")
+  target_epoch=$(date -j -f "%Y-%m-%d %H:%M" "${today} ${target_time}" "+%s" 2>/dev/null || date -d "${today} ${target_time}" "+%s")
+  now_epoch=$(date "+%s")
+  if (( target_epoch <= now_epoch )); then
+    target_epoch=$(( target_epoch + 24 * 60 * 60 ))
+  fi
+  seconds=$(( target_epoch - now_epoch ))
+  duration=$(format_duration "$seconds")
+  if [[ "$input" =~ [aApP][mM]$ ]]; then
+    end_time=$(date -r "$target_epoch" "+%I:%M%p" 2>/dev/null || date -d "@${target_epoch}" "+%I:%M%p")
+    end_time="${end_time,,}"
+  else
+    end_time=$(date -r "$target_epoch" "+%H:%M" 2>/dev/null || date -d "@${target_epoch}" "+%H:%M")
+  fi
+  echo "Caffeinating until ${end_time} (${duration})..."
+fi
+
 exec /usr/bin/caffeinate -t "$seconds"
